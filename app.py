@@ -114,6 +114,9 @@ def logout():
     """Handle logout of user."""
 
     # IMPLEMENT THIS
+    session.pop(CURR_USER_KEY)
+
+    return redirect("/")
 
 
 ##############################################################################
