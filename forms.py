@@ -33,6 +33,7 @@ def update_profile_form(user):
         image_url = StringField('Profile Image URL', default=user.image_url)
         header_image_url = StringField('Header Image URL', default=user.header_image_url)
         bio = TextAreaField("Bio", default=user.bio)
+        location = StringField("Location", default=user.location)
         password = PasswordField('Password', validators=[Length(min=6)])
 
     return UpdateProfileForm()
