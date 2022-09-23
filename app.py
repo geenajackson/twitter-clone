@@ -3,6 +3,7 @@ import os
 from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy import or_
 
 from forms import UserAddForm, LoginForm, MessageForm, update_profile_form
 from models import db, connect_db, User, Message
@@ -332,8 +333,11 @@ def homepage():
     """
 
     if g.user:
+        follows = [user.id for user in g.user.following]
         messages = (Message
                     .query
+                    # .filter(Message.user_id == g.user.id)
+                    .filter(or_(Message.user_id.in_(follows), Message.user_id == g.user.id))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
