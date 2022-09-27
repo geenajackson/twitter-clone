@@ -210,6 +210,17 @@ def stop_following(follow_id):
 
     return redirect(f"/users/{g.user.id}/following")
 
+@app.route('/users/<int:user_id>/likes')
+def show_likes(user_id):
+    """Show list of messages this user likes."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    user = User.query.get_or_404(user_id)
+    return render_template('users/likes.html', user=user)
+
 
 @app.route('/users/profile', methods=["GET", "POST"])
 def profile():
@@ -302,7 +313,9 @@ def messages_show(message_id):
     """Show a message."""
 
     msg = Message.query.get(message_id)
-    return render_template('messages/show.html', message=msg)
+    if g.user:
+        likes = g.user.likes
+    return render_template('messages/show.html', message=msg, likes=likes)
 
 
 @app.route('/messages/<int:message_id>/delete', methods=["POST"])
@@ -332,7 +345,7 @@ def like_message(message_id):
 
     db.session.commit()
 
-    return render_template('messages/show.html', message=msg)
+    return redirect("/")
 
 @app.route("/unlike/<int:message_id>", methods=["POST"])
 def unlike_message(message_id):
@@ -347,7 +360,7 @@ def unlike_message(message_id):
 
     db.session.commit()
 
-    return render_template('messages/show.html', message=msg)
+    return redirect("/")
 
 
 
