@@ -343,7 +343,7 @@ def unlike_message(message_id):
         return redirect("/")
 
     msg = Message.query.get_or_404(message_id)
-    g.user.likes.pop(msg)
+    g.user.likes.remove(msg)
 
     db.session.commit()
 
