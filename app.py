@@ -6,7 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
 
 from forms import UserAddForm, LoginForm, MessageForm, update_profile_form
-from models import db, connect_db, User, Message
+from models import db, connect_db, User, Message, Likes
 
 CURR_USER_KEY = "curr_user"
 
@@ -319,6 +319,37 @@ def messages_destroy(message_id):
 
     return redirect(f"/users/{g.user.id}")
 
+@app.route("/like/<int:message_id>", methods=["POST"])
+def like_message(message_id):
+    """Likes a message."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    msg = Message.query.get_or_404(message_id)
+    g.user.likes.append(msg)
+
+    db.session.commit()
+
+    return render_template('messages/show.html', message=msg)
+
+@app.route("/unlike/<int:message_id>", methods=["POST"])
+def unlike_message(message_id):
+    """Unlikes a message."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    msg = Message.query.get_or_404(message_id)
+    g.user.likes.pop(msg)
+
+    db.session.commit()
+
+    return render_template('messages/show.html', message=msg)
+
+
 
 ##############################################################################
 # Homepage and error pages
@@ -333,6 +364,7 @@ def homepage():
     """
 
     if g.user:
+        likes = g.user.likes
         follows = [user.id for user in g.user.following]
         messages = (Message
                     .query
@@ -342,7 +374,7 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, likes=likes)
 
     else:
         return render_template('home-anon.html')
