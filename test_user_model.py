@@ -6,6 +6,8 @@
 
 
 import os
+#python debugger
+import pdb
 from unittest import TestCase
 
 from models import db, User, Message, Follows
@@ -26,6 +28,7 @@ from app import app
 # once for all tests --- in each test, we'll delete the data
 # and create fresh new clean test data
 
+db.drop_all()
 db.create_all()
 
 
@@ -39,7 +42,31 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         Follows.query.delete()
 
+        user1 = User(
+            email="test1@test1.com",
+            username="testuser1",
+            password="HASHED_PASSWORD"
+        )
+
+        user2 = User(
+            email="test2@test2.com",
+            username="testuser2",
+            password="HASHED_PASSWORD"
+        )
+
+        db.session.add(user1)
+        db.session.add(user2)
+        db.session.commit()
+
         self.client = app.test_client()
+        self.user1 = user1
+        self.user2 = user2
+
+    def tearDown(self):
+        """Clean up fouled transactions."""
+
+        db.session.rollback()
+
 
     def test_user_model(self):
         """Does basic model work?"""
@@ -56,3 +83,18 @@ class UserModelTestCase(TestCase):
         # User should have no messages & no followers
         self.assertEqual(len(u.messages), 0)
         self.assertEqual(len(u.followers), 0)
+    
+    def test_is_following(self):
+        """Tests if user is following another user."""
+
+        self.assertEqual(len(self.user1.following), 0)
+
+        self.user1.following.append(self.user2)
+        db.session.commit()
+
+        #opens the python debugger
+        pdb.set_trace()
+
+        self.assertEqual(len(self.user1.following), 1)
+        self.assertEqual(len(self.user2.followers), 1)
+
