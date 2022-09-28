@@ -6,6 +6,7 @@
 
 
 import os
+import pdb
 from unittest import TestCase
 
 from models import db, connect_db, Message, User
@@ -39,8 +40,8 @@ class MessageViewTestCase(TestCase):
     def setUp(self):
         """Create test client, add sample data."""
 
-        User.query.delete()
-        Message.query.delete()
+        db.drop_all()
+        db.create_all()
 
         self.client = app.test_client()
 
@@ -71,3 +72,24 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_delete_message(self):
+        """Tests for deletion of message."""
+        msg = Message(id = 1111, text = "test message", user_id = self.testuser.id)
+        db.session.add(msg)
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            resp = c.post("/messages/1111/delete")
+
+            self.assertEqual(resp.status_code, 302)
+
+            deleted_msg = Message.query.get(1111)
+            pdb.set_trace()
+
+            self.assertIsNone(deleted_msg)
+
+
