@@ -31,6 +31,9 @@ from app import app
 db.drop_all()
 db.create_all()
 
+#opens the python debugger
+# pdb.set_trace()
+
 
 class UserModelTestCase(TestCase):
     """Test views for messages."""
@@ -92,9 +95,18 @@ class UserModelTestCase(TestCase):
         self.user1.following.append(self.user2)
         db.session.commit()
 
-        #opens the python debugger
-        pdb.set_trace()
-
         self.assertEqual(len(self.user1.following), 1)
         self.assertEqual(len(self.user2.followers), 1)
+
+    def test_is_followed(self):
+        """Tests if user is being followed by another user."""
+
+        self.assertEqual(len(self.user2.followers), 0)
+
+        self.user1.following.append(self.user2)
+        db.session.commit()
+
+        self.assertEqual(len(self.user2.followers), 1)
+
+
 
