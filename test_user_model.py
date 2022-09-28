@@ -28,7 +28,6 @@ from app import app
 # once for all tests --- in each test, we'll delete the data
 # and create fresh new clean test data
 
-db.drop_all()
 db.create_all()
 
 #opens the python debugger
@@ -36,7 +35,7 @@ db.create_all()
 
 
 class UserModelTestCase(TestCase):
-    """Test views for messages."""
+    """Tests for user models."""
 
     def setUp(self):
         """Create test client, add sample data."""
@@ -48,7 +47,7 @@ class UserModelTestCase(TestCase):
         user1 = User(
             email="test1@test1.com",
             username="testuser1",
-            password="HASHED_PASSWORD"
+            password="password"
         )
 
         user2 = User(
@@ -121,5 +120,12 @@ class UserModelTestCase(TestCase):
         #hashed passwords will start with $2b$
         self.assertTrue(test_user.password.startswith("$2b$"))
 
+    def test_authenticate(self):
+        pdb.set_trace()
 
+        test_user = User.authenticate(self.user1.username, "password")
+
+        
+
+        self.assertEqual(test_user.id, self.user1.id)
 
