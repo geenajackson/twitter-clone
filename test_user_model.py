@@ -107,6 +107,19 @@ class UserModelTestCase(TestCase):
         db.session.commit()
 
         self.assertEqual(len(self.user2.followers), 1)
+    
+    def test_signup(self):
+
+        user3 = User.signup("test", "test@test.com", "testtest", "test.jpg")
+
+        db.session.add(user3)
+        db.session.commit()
+
+        test_user = User.query.get(user3.id)
+        self.assertEqual(test_user.username, "test")
+        self.assertEqual(test_user.email, "test@test.com")
+        #hashed passwords will start with $2b$
+        self.assertTrue(test_user.password.startswith("$2b$"))
 
 
 
