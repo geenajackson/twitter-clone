@@ -346,7 +346,7 @@ def like_message(message_id):
 
     db.session.commit()
 
-    return redirect("/")
+    return redirect(f"/users/{g.user.id}/likes")
 
 @app.route("/unlike/<int:message_id>", methods=["POST"])
 def unlike_message(message_id):
