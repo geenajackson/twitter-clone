@@ -45,12 +45,20 @@ class MessageViewTestCase(TestCase):
 
         self.client = app.test_client()
 
-        self.testuser = User.signup(username="testuser",
+        testuser = User.signup(username="testuser",
                                     email="test@test.com",
                                     password="testuser",
                                     image_url=None)
 
+        db.session.add(testuser)
         db.session.commit()
+
+        self.testuser = testuser
+
+    def tearDown(self):
+        res = super().tearDown()
+        db.session.rollback()
+        return res
 
     def test_add_message(self):
         """Can use add a message?"""
@@ -88,8 +96,22 @@ class MessageViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 302)
 
             deleted_msg = Message.query.get(1111)
-            pdb.set_trace()
 
             self.assertIsNone(deleted_msg)
+
+    def test_prohibit_messages(self):
+        """Tests for messages when user is not logged in."""
+        msg = Message(id = 1111, text="test", user_id = self.testuser.id)
+
+        db.session.add(msg)
+        db.session.commit()
+
+        with self.client as c:
+
+            resp = c.post("/messages/new", data={"text": "Hello"}, follow_redirects = True)
+            self.assertEqual(resp.status_code, 200)
+
+            resp = c.post(f"/messages/1111/delete", follow_redirects = True)
+            self.assertEqual(resp.status_code, 200)
 
 
