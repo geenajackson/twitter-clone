@@ -110,8 +110,10 @@ class MessageViewTestCase(TestCase):
 
             resp = c.post("/messages/new", data={"text": "Hello"}, follow_redirects = True)
             self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized.", str(resp.data))
 
             resp = c.post(f"/messages/1111/delete", follow_redirects = True)
             self.assertEqual(resp.status_code, 200)
+            self.assertIn("Access unauthorized.", str(resp.data))
 
 
