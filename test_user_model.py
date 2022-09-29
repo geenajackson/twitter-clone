@@ -125,7 +125,5 @@ class UserModelTestCase(TestCase):
 
         test_user = User.authenticate(self.user1.username, "password")
 
-        
-
         self.assertEqual(test_user.id, self.user1.id)
 
